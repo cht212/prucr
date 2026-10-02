@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/CRM.Data.MySql/" />
+  <Folder Name="/CRM.Data.MySql/tests/">
+    <Project Path="CRM.Data.MySql/tests/CRM.Data.Tests/CRM.Data.Tests.csproj" />
+  </Folder>
+  <Project Path="CRM.Data.MySql/CRM.Data.csproj" />
+</Solution>

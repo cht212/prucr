@@ -1,0 +1,706 @@
+/* ===== Modo oscuro ===== */
+.theme-dark {
+    --primary: var(--pantone-285);
+    --primary-darken-1: var(--pantone-293);
+    --secondary: var(--pantone-277);
+    --secondary-darken-1: color-mix(in srgb, var(--pantone-277) 72%, var(--pantone-293));
+    --success: var(--pantone-376);
+    --success-darken-1: color-mix(in srgb, var(--pantone-376) 74%, var(--pantone-293));
+    --info: var(--pantone-306);
+    --warning: var(--pantone-1235);
+    --error: color-mix(in srgb, var(--pantone-1235) 72%, var(--pantone-293));
+    --background: #162B3A;
+    --surface: #203E52;
+    --on-background: #EAEAFF;
+    --on-surface: #EAEAFF;
+    --perfect-scrollbar-thumb: color-mix(in srgb, var(--pantone-277) 50%, var(--surface));
+    --expansion-panel-text-custom-bg: #24475D;
+    --table-header-color: color-mix(in srgb, var(--pantone-293) 34%, var(--surface));
+    --ink: var(--on-background);
+    --muted: color-mix(in srgb, var(--on-background) 72%, var(--surface));
+    --line: var(--table-header-color);
+    --panel: var(--surface);
+    --soft: var(--expansion-panel-text-custom-bg);
+    --canvas: var(--background);
+    /* OJO: --green es el acento de marca principal (azul, Pantone 285),
+       no un verde literal. Para verde real usar --pantone-374 o --pantone-376 (--success). */
+    --green: var(--primary);
+    --green-dark: var(--primary-darken-1);
+    --green-soft: color-mix(in srgb, var(--primary) 18%, transparent);
+    --accent: var(--secondary);
+    --materialize-success: var(--success);
+    --materialize-warning: var(--warning);
+    --materialize-danger: var(--error);
+    --materialize-shadow: 0 14px 30px color-mix(in srgb, var(--on-background) 34%, transparent);
+    --materialize-shadow-soft: 0 8px 22px color-mix(in srgb, var(--on-background) 28%, transparent);
+    color-scheme: dark;
+}
+
+.theme-dark body {
+    background: var(--background);
+    color: var(--on-background);
+}
+
+.theme-dark .sidebar,
+.theme-dark .chat,
+.theme-dark .details,
+.theme-dark .module-view,
+.theme-dark .notification-dropdown,
+.theme-dark .profile-dropdown,
+.theme-dark .crm-modal,
+.theme-dark .crm-card,
+.theme-dark .crm-list-item,
+.theme-dark .meta-panel,
+.theme-dark .insight-card,
+.theme-dark .contact-form,
+.theme-dark .contacts-workspace,
+.theme-dark .task-workspace,
+.theme-dark .sales-workspace,
+.theme-dark .bot-card,
+.theme-dark .bot-channel-section,
+.theme-dark .connection-card,
+.theme-dark .report-filter-form,
+.theme-dark .module-table {
+    background: var(--surface);
+    border-color: var(--line);
+    color: var(--on-surface);
+}
+
+.theme-dark .header {
+    background: color-mix(in srgb, var(--surface) 98%, transparent);
+}
+
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6,
+.theme-dark strong,
+.theme-dark b,
+.theme-dark .chat-name,
+.theme-dark .contact-name,
+.theme-dark .conversation-name,
+.theme-dark .module-heading h1 {
+    color: var(--on-background);
+}
+
+/* El fondo del encabezado (título de módulo, banner del dashboard)
+   estaba fijo en blanco: el texto claro de arriba quedaba casi
+   invisible encima. Ahora usa superficie/borde del tema oscuro. */
+.theme-dark .module-heading {
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+/* Las tarjetas de métricas (dashboard, tareas, reportes...) no tenían
+   NINGUNA regla de modo oscuro: seguían con su degradado blanco fijo
+   mientras el texto se volvía claro encima -> números casi ilegibles. */
+.theme-dark .metric-card {
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+.theme-dark .metric-label {
+    color: var(--muted);
+}
+
+.theme-dark .metric-value {
+    color: var(--ink);
+}
+
+/* Estas variantes con color por posición pesan más que la regla de
+   arriba (tienen un selector más específico) y si no se pisan aquí
+   siguen ganando con su degradado claro fijo. */
+.theme-dark .module-grid .metric-card:nth-child(odd),
+.theme-dark .module-grid .metric-card:nth-child(even),
+.theme-dark .task-summary .metric-card:nth-child(1),
+.theme-dark .task-summary .metric-card:nth-child(2),
+.theme-dark .task-summary .metric-card:nth-child(3),
+.theme-dark .task-summary .metric-card:nth-child(4) {
+    background: var(--surface);
+}
+
+.theme-dark .sidebar-header,
+.theme-dark .conversation-list,
+.theme-dark .messages,
+.theme-dark .composer {
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+.theme-dark .module-heading p,
+.theme-dark .conversation-preview,
+.theme-dark .conversation-channel,
+.theme-dark .conversation-time,
+.theme-dark .chat-phone,
+.theme-dark .empty,
+.theme-dark .empty-detail,
+.theme-dark .muted-small,
+.theme-dark .crm-facts,
+.theme-dark .contact-phone,
+.theme-dark .client-360-grid small,
+.theme-dark .notification-copy span,
+.theme-dark .notification-item small,
+.theme-dark .profile-summary span {
+    color: var(--muted);
+}
+
+.theme-dark .conversation,
+.theme-dark .message,
+.theme-dark .message.incoming,
+.theme-dark .notification-button,
+.theme-dark .profile-button,
+.theme-dark .quick-replies,
+.theme-dark .quick-reply,
+.theme-dark .chat-channel-badge,
+.theme-dark .chat-bot-toggle,
+.theme-dark .bot-channel-card,
+.theme-dark .sales-card,
+.theme-dark .task-item {
+    background: color-mix(in srgb, var(--surface) 2%, transparent);
+    border-color: var(--line);
+    color: var(--on-surface);
+}
+
+/* .kanban-summary-card tiene su propia regla (mas abajo) porque
+   "border-color" de arriba pisaba el border-left de color de etapa,
+   dejando las 8 tarjetas con el mismo tono apagado sin importar el estado. */
+.theme-dark .kanban-summary-card {
+    background: var(--surface);
+    border-color: var(--line);
+    border-left-color: var(--stage-color, var(--pantone-gray-52));
+    color: var(--on-surface);
+}
+
+/* Otros recuadros que se quedaban con su degradado blanco fijo en
+   modo oscuro (el formulario "Nueva oportunidad" de Ventas y el de
+   Tareas, y las columnas del tablero de Ventas). */
+.theme-dark .task-form,
+.theme-dark .sales-form,
+.theme-dark .sales-column {
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+.theme-dark .conversation:hover,
+.theme-dark .conversation.active {
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    border-left-color: var(--primary);
+}
+
+.theme-dark .conversation-status,
+.theme-dark .conversation-alert {
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+    color: var(--on-surface);
+}
+
+.theme-dark .messages {
+    background-color: var(--background);
+    background-image: radial-gradient(color-mix(in srgb, var(--primary) 8%, transparent) 1px, transparent 1px);
+}
+
+.theme-dark .message.outgoing {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea,
+.theme-dark .search,
+.theme-dark .message-input,
+.theme-dark .crm-form input,
+.theme-dark .crm-form select,
+.theme-dark .crm-form textarea,
+.theme-dark .mini-select,
+.theme-dark .tag-picker,
+.theme-dark .report-filter-form input,
+.theme-dark .report-filter-form select {
+    background: var(--surface);
+    border-color: var(--line);
+    color: var(--on-background);
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder,
+.theme-dark .message-input::placeholder,
+.theme-dark .search::placeholder {
+    color: var(--on-surface);
+}
+
+.theme-dark .table th,
+.theme-dark .module-table th,
+.theme-dark .table td,
+.theme-dark .module-table td {
+    border-color: var(--line);
+    color: var(--on-background);
+}
+
+.theme-dark .filter-button.active,
+.theme-dark .crm-tab.active,
+.theme-dark .chart-row.active {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    color: var(--surface);
+}
+
+
+.theme-dark .client-360-grid article.danger,
+.theme-dark .crm-list-item.danger,
+.theme-dark .task-item.danger {
+    border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+    background: color-mix(in srgb, var(--warning) 10%, transparent);
+}
+
+.theme-dark .chart-track,
+.theme-dark .lead-progress-step {
+    background: var(--expansion-panel-text-custom-bg);
+}
+
+.theme-dark .toast {
+    background: var(--surface);
+    color: var(--on-background);
+    border: 1px solid var(--line);
+}
+
+.theme-dark .modal-backdrop {
+    background: color-mix(in srgb, var(--on-background) 68%, transparent);
+}
+
+/* Parches funcionales para clases emitidas por los modulos JS. */
+.hidden {
+    display: none !important;
+}
+
+.message-ticks {
+    display: inline-flex;
+    align-items: center;
+    min-width: 18px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.tick-pendiente {
+    color: var(--muted);
+}
+
+.tick-enviado {
+    color: var(--muted);
+}
+
+.tick-entregado {
+    color: var(--primary);
+}
+
+.tick-leido {
+    color: var(--primary);
+}
+
+.tick-fallido,
+.text-danger {
+    color: var(--error);
+}
+
+.contacts-table {
+    width: 100%;
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.panel-heading-with-action,
+.connection-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.connection-channel-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 14px 0 4px;
+}
+
+.connection-channel-metrics span {
+    display: grid;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--soft);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.connection-channel-metrics strong {
+    font-size: 16px;
+    line-height: 1.1;
+}
+
+.bot-template-response {
+    display: grid;
+    gap: 6px;
+}
+
+/* Los colores de --stage-color por etapa (NUEVO, ABIERTO, EN_ATENCION,
+   ESPERANDO_CLIENTE, COTIZACION_ENVIADA, CERRADO, PERDIDO, NO_RESPONDIO)
+   se definen junto a .kanban-summary-card y .stage-column, no aqui,
+   para tener una sola fuente de verdad por color de etapa. */
+
+.theme-dark .tick-pendiente,
+.theme-dark .tick-enviado {
+    color: var(--on-surface);
+}
+
+.theme-dark .tick-entregado,
+.theme-dark .tick-leido {
+    color: var(--secondary-darken-1);
+}
+
+/* Dashboard operativo: portada diaria sin analitica social ni diagnosticos. */
+.ops-dashboard {
+    display: grid;
+    gap: 18px;
+}
+
+.ops-heading {
+    align-items: flex-start;
+}
+
+.ops-heading-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.ops-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.ops-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.15fr) minmax(280px, 0.95fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.ops-column {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+    align-content: start;
+}
+
+.ops-panel {
+    min-width: 0;
+}
+
+.ops-action-list,
+.ops-bar-list,
+.ops-team-list {
+    display: grid;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.ops-action-list.compact {
+    max-height: 360px;
+    overflow: auto;
+}
+
+.ops-action {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--on-background);
+    text-align: left;
+    cursor: pointer;
+}
+
+.ops-action:hover {
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    background: var(--soft);
+}
+
+.ops-action.danger {
+    border-color: color-mix(in srgb, var(--error) 32%, var(--line));
+    background: color-mix(in srgb, var(--error) 7%, var(--surface));
+}
+
+.ops-action span {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ops-action strong,
+.ops-action small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ops-action small,
+.ops-action em,
+.ops-bar-row span,
+.ops-team-row span,
+.ops-team-row small,
+.ops-footnote {
+    color: var(--muted);
+}
+
+.ops-action em {
+    flex: 0 0 auto;
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ops-bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.8fr) minmax(120px, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.ops-bar-row:last-child {
+    border-bottom: 0;
+}
+
+.ops-bar-row > div {
+    display: grid;
+    gap: 2px;
+}
+
+.ops-bar-row em {
+    font-style: normal;
+    font-weight: 500;
+    color: var(--on-background);
+}
+
+.ops-team-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) repeat(3, auto) 36px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.ops-team-row.danger {
+    border-color: color-mix(in srgb, var(--warning) 35%, var(--line));
+    background: color-mix(in srgb, var(--warning) 8%, var(--surface));
+}
+
+.ops-team-row > div {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+}
+
+.ops-team-row b {
+    text-align: right;
+}
+
+.ops-footnote {
+    margin: 12px 0 0;
+    font-size: 12px;
+}
+
+.warning-card {
+    border-color: color-mix(in srgb, var(--warning) 45%, var(--line)) !important;
+    background: color-mix(in srgb, var(--warning) 9%, var(--surface)) !important;
+}
+
+.theme-dark .ops-action,
+.theme-dark .ops-team-row {
+    background: color-mix(in srgb, var(--surface) 2%, transparent);
+    border-color: var(--line);
+}
+
+.theme-dark .ops-action:hover {
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+@media (max-width: 1100px) {
+    .ops-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ops-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 720px) {
+    .ops-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ops-heading-actions,
+    .ops-heading-actions .secondary-btn {
+        width: 100%;
+    }
+
+    .ops-bar-row,
+    .ops-team-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ops-team-row b {
+        text-align: left;
+    }
+}
+
+/* Controles del dashboard: evita el aspecto nativo del navegador. */
+.ops-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--on-background);
+    font: inherit;
+    cursor: pointer;
+    box-shadow: 0 3px 9px color-mix(in srgb, var(--on-background) 7%, transparent);
+    transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.ops-filter-button svg { width: 17px; height: 17px; }
+.ops-filter-button:hover { transform: translateY(-1px); box-shadow: 0 7px 15px color-mix(in srgb, var(--on-background) 10%, transparent); }
+.ops-filter-button.primary { border-color: var(--primary); }
+.ops-filter-button.secondary:hover { border-color: var(--primary); color: var(--primary); }
+.ops-filter-button.analytics { border-color: color-mix(in srgb, var(--secondary) 55%, var(--line)); }
+.ops-load-warning { display: flex; gap: 8px; align-items: center; padding: 10px 13px; border: 1px solid color-mix(in srgb, var(--warning) 42%, var(--line)); border-radius: 10px; background: color-mix(in srgb, var(--warning) 8%, var(--surface)); color: var(--muted); font-size: 12px; }
+.ops-load-warning strong { color: var(--on-background); }
+
+/* Centro de control administrativo. Bloque aislado para no alterar los
+   estilos existentes de bandeja, ficha ni módulos operativos. */
+.ops-filter-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+    padding: 14px;
+}
+.ops-filter-bar label { display: grid; gap: 6px; min-width: 0; }
+.ops-filter-bar input,
+.ops-filter-bar select {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--on-background);
+}
+.ops-filter-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ops-filter-actions button { min-height: 40px; white-space: nowrap; }
+
+.ops-executive-grid,
+.ops-system-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+.ops-executive-card,
+.ops-system-card,
+.ops-risk-card {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    padding: 14px;
+    text-align: left;
+}
+.ops-executive-card > strong,
+.ops-system-card > strong,
+.ops-risk-card > strong { overflow: hidden; text-overflow: ellipsis; }
+.ops-executive-card > small,
+.ops-system-card > small,
+.ops-risk-card > small { color: var(--muted); }
+.ops-executive-card.warning,
+.ops-system-card.warning,
+.ops-risk-card.danger { border-color: color-mix(in srgb, var(--warning) 48%, var(--line)); background: color-mix(in srgb, var(--warning) 8%, var(--surface)); }
+.ops-system-card.danger { border-color: color-mix(in srgb, var(--error) 48%, var(--line)); background: color-mix(in srgb, var(--error) 8%, var(--surface)); }
+.ops-system-card.ready { border-color: color-mix(in srgb, var(--secondary) 36%, var(--line)); }
+.ops-system-card,
+.ops-risk-card { cursor: pointer; font: inherit; }
+
+.ops-admin-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; align-items: start; }
+.ops-risk-grid { display: grid; grid-template-columns: repeat(2, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+.ops-loss-list { display: grid; gap: 0; margin-top: 12px; }
+.ops-loss-list > div:not(.empty) { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.ops-loss-list > div:last-child { border-bottom: 0; }
+.ops-loss-list span { display: grid; gap: 2px; }
+.ops-loss-list small { color: var(--muted); }
+.ops-loss-list b { white-space: nowrap; }
+
+.ops-system-panel { display: grid; gap: 14px; }
+.ops-channel-strip { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 8px; }
+.ops-channel-strip > span { display: grid; grid-template-columns: 30px 1fr; column-gap: 8px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.ops-channel-strip .brand-logo { grid-row: span 2; width: 26px; height: 26px; }
+.ops-channel-strip b { font-size: 13px; }
+.ops-channel-strip small { color: var(--muted); font-size: 11px; }
+.ops-channel-strip > span.ready { border-color: color-mix(in srgb, var(--secondary) 34%, var(--line)); }
+.ops-channel-strip > span.warning { border-color: color-mix(in srgb, var(--warning) 42%, var(--line)); }
+.ops-admin-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ops-admin-shortcuts .ghost-button { min-height: 40px; }
+
+.ops-dashboard button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+button.ops-team-row { width: 100%; color: var(--on-background); font: inherit; text-align: left; cursor: pointer; }
+button.ops-team-row:hover { border-color: var(--primary); }
+button.ops-team-row:focus-visible,
+.ops-system-card:focus-visible,
+.ops-risk-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.theme-dark .ops-filter-bar,
+.theme-dark .ops-executive-card,
+.theme-dark .ops-system-card,
+.theme-dark .ops-risk-card { background: color-mix(in srgb, var(--surface) 2%, transparent); }
+
+@media (max-width: 1100px) {
+    .ops-filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ops-filter-actions { grid-column: 1 / -1; }
+    .ops-executive-grid,
+    .ops-system-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ops-channel-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ops-admin-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+    .ops-filter-bar,
+    .ops-executive-grid,
+    .ops-system-grid,
+    .ops-risk-grid,
+    .ops-channel-strip { grid-template-columns: 1fr; }
+    .ops-filter-actions { grid-column: auto; }
+    .ops-filter-actions button { flex: 1 1 100%; }
+}

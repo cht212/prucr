@@ -1,0 +1,24 @@
+name: crm-data-mysql-local
+
+services:
+  mysql:
+    image: mysql:8.0.39
+    container_name: crm-data-mysql
+    restart: unless-stopped
+    env_file:
+      - configuracion-local.env
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - crm_data_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  crm_data_mysql:
+    name: crm_data_mysql
+    external: true

@@ -1,0 +1,43 @@
+# Build output
+**/bin/
+**/obj/
+.vs/
+
+# Local configuration and secrets
+**/appsettings.json
+**/appsettings.*.json
+**/App_Data/*.json
+**/wwwroot/uploads/
+**/docs/CLAVES_CONEXIONES_REDES.md
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.pfx
+*.crt
+
+# Local development files
+*.user
+*.suo
+*.userosscache
+*.rsuser
+
+# IDE and OS files
+.vscode/
+.claude/
+.DS_Store
+Thumbs.db
+~$*
+
+# Temporary validation output
+_codex_build_check/
+**/.tmp/
+
+# Commercial/reference templates
+Plantilla.zip
+Plantilla/
+
+# Retired projects and local hosting diagnostics
+/CRM.Data/
+/CRM.HostingProbe/

@@ -1,0 +1,10 @@
+# Configuracion local con contrasenas y credenciales reales.
+configuracion-local.env
+
+# Datos, compilaciones y archivos locales del IDE.
+App_Data/
+bin/
+obj/
+.vs/
+.tmp/
+

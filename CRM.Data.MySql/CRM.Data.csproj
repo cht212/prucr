@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="4.0.103.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="10.0.12" />
+  </ItemGroup>
+
+  <!-- Los datos y archivos generados por cada instalacion pertenecen al servidor,
+       no al paquete de despliegue. Esto evita sobrescribir claves y adjuntos. -->
+  <ItemGroup>
+    <Content Update="App_Data\**\*" CopyToPublishDirectory="Never" />
+    <Content Update="App_Data\social-integrations.json" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="App_Data\bot-whatsapp.json" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="wwwroot\uploads\**\*" CopyToPublishDirectory="Never" />
+    <Compile Remove="tests\**\*.cs" />
+    <Content Remove="tests\**\*" />
+    <EmbeddedResource Remove="tests\**\*" />
+    <None Remove="tests\**\*" />
+    <Content Remove="sacar el diseño\**\*" />
+    <None Remove="sacar el diseño\**\*" />
+  </ItemGroup>
+
+</Project>

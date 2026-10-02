@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRM HPD | Acceso</title>
+    <link rel="icon" type="image/png" href="/iconodelog.png">
+    <link rel="stylesheet" href="css/login.css?v=20261002-css-audit-v2">
+</head>
+<body>
+    <div class="login-shell">
+        <section class="brand-panel">
+            <div class="brand-top">
+                <img class="brand-logo" src="images/hpd-logo.svg" alt="HPD Glass Group" />
+            </div>
+
+            <div class="brand-message">
+                <span class="brand-kicker">Vidrio · Aluminio · Innovación</span>
+                <h1>Transformamos espacios con precisión y diseño.</h1>
+                <p>Una plataforma creada para conectar cada oportunidad, proyecto y cliente de HPD Glass Group.</p>
+                <div class="brand-values" aria-label="Valores de HPD Glass Group">
+                    <span>Calidad</span>
+                    <span>Transparencia</span>
+                    <span>Confianza</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-panel">
+            <img class="mobile-brand" src="images/hpd-logo.svg" alt="HPD Glass Group" />
+            <div class="auth-card">
+                <div class="auth-topbar">
+                    <div class="access-pill">
+                        <svg class="access-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 15h2v5h12V4H6v5H4V3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zm6-4V8l5 4-5 4v-3H2v-2z"/></svg>
+                        <span>Acceso al sistema</span>
+                    </div>
+                </div>
+
+                <h2 class="auth-title">Bienvenido a HPD</h2>
+                <p class="auth-subtitle">Inicia sesión en tu cuenta para continuar.</p>
+
+                <div id="errorMessage" class="alert" role="alert" aria-live="polite"></div>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="username">Usuario</label>
+                        <div class="field">
+                            <span class="field-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 22a8 8 0 1 1 16 0h-2a6 6 0 0 0-12 0zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6s6 2.685 6 6s-2.685 6-6 6m0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4"/></svg>
+                            </span>
+                            <input id="username" name="username" type="text" placeholder="Nombre de usuario" autocomplete="username" required autofocus />
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Contraseña</label>
+                        <div class="field password-wrap">
+                            <span class="field-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 10h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h1V9a7 7 0 0 1 14 0zM5 12v8h14v-8zm6 2h2v4h-2zm6-4V9A5 5 0 0 0 7 9v1z"/></svg>
+                            </span>
+                            <input id="password" name="password" type="password" placeholder="············" autocomplete="current-password" required />
+                            <button type="button" class="toggle" id="togglePassword" aria-label="Mostrar contraseña">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-meta">
+                        <label class="remember">
+                            <input type="checkbox" id="rememberMe" />
+                            <span>Recordarme</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="primary-btn"><svg class="login-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 15h2v5h12V4H6v5H4V3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zm6-4V8l5 4-5 4v-3H2v-2z"/></svg><span>Iniciar sesión</span></button>
+                </form>
+                <p class="auth-footnote"><span aria-hidden="true"></span> Acceso privado y seguro para el equipo HPD.</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/remix-icons.js?v=20261001-dynamic-table-icons-v4"></script>
+    <script>
+        window.lucide.createIcons();
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            togglePassword.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            togglePassword.innerHTML = `<i data-lucide="${isPassword ? 'eye-off' : 'eye'}"></i>`;
+            window.lucide.createIcons();
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('show');
+
+            const submitBtn = form.querySelector('.primary-btn');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        usuario: document.getElementById('username').value,
+                        password: passwordInput.value,
+                        recordarme: document.getElementById('rememberMe').checked
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (response.status === 404) {
+                    errorMessage.textContent = 'El servidor activo no tiene el login instalado. Reinicia el CRM con la versión nueva.';
+                } else if (response.status === 401) {
+                    errorMessage.textContent = 'Usuario o contraseña incorrectos.';
+                } else if (response.status === 429) {
+                    const detalle = await response.json().catch(() => null);
+                    errorMessage.textContent = detalle?.message || 'Demasiados intentos fallidos. Espera unos minutos antes de volver a intentarlo.';
+                } else if (response.status === 403) {
+                    const detalle = await response.json().catch(() => null);
+                    errorMessage.textContent = detalle?.message || 'La solicitud de inicio de sesión fue rechazada por la configuración de seguridad.';
+                } else {
+                    errorMessage.textContent = `No se pudo iniciar sesión (HTTP ${response.status}).`;
+                }
+
+                errorMessage.classList.add('show');
+            } catch (error) {
+                errorMessage.textContent = 'Error de conexión. Por favor, intenta de nuevo.';
+                errorMessage.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
