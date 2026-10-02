@@ -1,57 +1,61 @@
-# CRM Data MySQL
+# CRM HPD MySQL
 
-Esta carpeta contiene la aplicación CRM HPD configurada para MySQL, junto con
-los recursos necesarios para ejecutarla localmente.
+Actualizado: 2 de octubre de 2026. Proyecto activo: `CRM.Data.MySql`.
+Repositorio: [cht212/prucr](https://github.com/cht212/prucr).
 
-## Inicio rápido local
+## Desarrollo local
 
-Requisitos: .NET 10 SDK, Docker Desktop y PowerShell.
+Requisitos: .NET 10 SDK, Docker Desktop y PowerShell. Para validar JavaScript,
+tambien se necesita Node.js.
 
-1. Editar en `configuracion-local.env` las claves de MySQL y del administrador
-   inicial. Si se utiliza el almacenamiento R2 ya integrado, completar también
-   sus variables.
-2. Iniciar MySQL:
+1. Configura `configuracion-local.env` con tus claves locales. La estructura
+   y los comandos estan en [MySQL local](docs/MYSQL-MIGRATION.md).
+2. Inicia MySQL con `.\docker-local.cmd up`.
+3. Ejecuta `dotnet run --project .\CRM.Data.csproj`.
+4. Abre la URL indicada en la consola. Los puertos configurados estan en
+   `Properties/launchSettings.json`; no se presupone un puerto fijo.
 
-   ```powershell
-   .\docker-local.cmd up
-   ```
+Las conexiones sociales y R2 se administran desde **Conexiones**. No copies
+claves reales a documentos, codigo ni archivos publicados.
 
-3. Ejecutar el CRM:
+## SmarterASP.NET
 
-   ```powershell
-   dotnet run --project .\CRM.Data.csproj
-   ```
+Para tu instalacion nueva, importa **una sola vez** el archivo
+[crear-base-datos.sql](docs/smarterasp/crear-base-datos.sql) en una base MySQL 8
+vacia. Incluye las seis migraciones actuales, los roles personalizados,
+los permisos, los indices de rendimiento y la clave de reintentos de mensajes.
+No contiene tus clientes, chats ni contrasenas.
 
-4. Abrir la URL que muestre la consola. Los perfiles de Visual Studio usan
-   `https://localhost:7081` y `http://localhost:5081`.
+Sigue [la guia de despliegue](docs/SMARTERASP_DESPLIEGUE.md) para configurar
+IIS, publicar y crear el administrador inicial.
 
-## Configuración sencilla
+## Documentacion necesaria
 
-- Usuario y clave inicial del CRM: `CRM_BOOTSTRAP_USERNAME` y
-  `CRM_BOOTSTRAP_PASSWORD` en `configuracion-local.env`.
-- Usuario y claves de MySQL: `MYSQL_USER`, `MYSQL_PASSWORD` y
-  `MYSQL_ROOT_PASSWORD` en el mismo archivo.
-- R2: variables que comienzan por `R2_`.
+- [Manual de uso](docs/MANUAL_USO_CRM_HPD.md).
+- [Arquitectura y mantenimiento](docs/DOCUMENTACION_COMPLETA_CRM_HPD.md).
+- [MySQL local y migraciones](docs/MYSQL-MIGRATION.md).
+- [Despliegue en SmarterASP.NET](docs/SMARTERASP_DESPLIEGUE.md).
 
-El usuario bootstrap solo se crea cuando no hay ningún usuario en la base. Una
-vez creado, su contraseña se cambia desde **Usuarios** dentro del CRM. Editar
-`CRM_BOOTSTRAP_PASSWORD` no modifica una cuenta ya existente.
+No se mantienen copias Word ni informes duplicados. Los documentos retirados
+se conservan en un respaldo fuera del repositorio.
 
-Para rotar de forma segura la clave del usuario MySQL local:
+## Verificacion
 
 ```powershell
-.\rotar-clave-mysql.cmd
+dotnet test .\tests\CRM.Data.Tests\CRM.Data.Tests.csproj -c Release
+Get-ChildItem .\wwwroot\js -Filter *.js | ForEach-Object { node --check $_.FullName }
 ```
 
-`configuracion-local.env` está ignorado por Git porque contiene secretos y debe
-permanecer solamente en el entorno local.
+## Git
 
-## Documentación
+Desde esta carpeta o desde la raiz del repositorio:
 
-Toda la documentación se encuentra en [`docs`](docs/INDICE.md):
+```powershell
+git add .
+git commit -m "Describe tus cambios"
+git push
+```
 
-- manual de uso;
-- documentación técnica;
-- Docker y migraciones MySQL;
-- despliegue en SmarterASP.NET.
+`origin` apunta a `https://github.com/cht212/prucr.git`. Una confirmacion local
+no equivale a una subida: comprueba que `git push` termine correctamente.
 

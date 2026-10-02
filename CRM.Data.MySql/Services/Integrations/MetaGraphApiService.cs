@@ -275,8 +275,14 @@ public sealed class MetaGraphApiService
             };
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        catch (OperationCanceledException ex)
         {
+            _logger.LogWarning(ex, "La consulta de Insights de Facebook venció para la publicación {PostId}.", parsed.Id);
+            return parsed;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException)
+        {
+            _logger.LogWarning(ex, "No se pudieron consultar las métricas de Insights para la publicación {PostId}.", parsed.Id);
             return parsed;
         }
         finally

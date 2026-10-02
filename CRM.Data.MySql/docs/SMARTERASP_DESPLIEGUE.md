@@ -1,97 +1,122 @@
 # Despliegue del CRM en SmarterASP.NET
 
-Esta guía prepara una instalación nueva. No copies `configuracion-local.env`,
-`App_Data` ni `wwwroot/uploads` al servidor.
+Actualizado: 2 de octubre de 2026. Procedimiento para una base **nueva y vacia**.
+SmarterASP anuncia soporte de MySQL 8 y .NET 10; confirma que ambos esten
+habilitados en el sitio y plan asignados antes de publicar.
+[Compatibilidad del proveedor](https://www.smarterasp.net/mysql_8_hosting).
 
-## 1. Crear la base MySQL
+## 1. Crear la base MySQL 8
 
-1. Entra al **Hosting Control Panel**.
-2. Abre **Databases > MySQL**.
-3. Pulsa **+ Database**.
-4. Selecciona MySQL 8, escribe el nombre, crea una contraseña fuerte y asigna
-   la cuota.
-5. Guarda por separado estos valores: servidor, puerto, base, usuario y clave.
+En el Hosting Control Panel, abre **Databases > MySQL > + Database**.
+Selecciona MySQL 8, establece nombre, clave y cuota, y guarda servidor, puerto,
+base, usuario y contrasena en un gestor seguro.
+[Instrucciones del proveedor](https://www.smarterasp.net/support/kb/a2393/how-can-i-create-a-mysql-database-from-the-hosting-control-panel.aspx).
 
-Hay dos formas válidas de crear las tablas:
+Selecciona la base del hosting antes de importar. No uses la base local ni
+un archivo SQL Server: este proyecto utiliza MySQL.
 
-- Recomendada: deja la base vacía. Al arrancar por primera vez, el CRM ejecuta
-  automáticamente todas las migraciones.
-- Por archivo: usa **Restore** sobre la base creada y carga
-  `docs/smarterasp/crear-base-datos.sql`. Este archivo sirve para una base
-  nueva y vacía; no debe ejecutarse dos veces.
+## 2. Importar el SQL actualizado
 
-## 2. Configurar la cadena de conexión
+Archivo unico: [smarterasp/crear-base-datos.sql](smarterasp/crear-base-datos.sql).
 
-La conexión MySQL no puede configurarse dentro del CRM: es necesaria antes de
-que existan el login y el panel. Debe vivir como variable protegida de IIS.
+En **Databases > MySQL**, localiza esa base y usa **Restore** para cargar el
+archivo. Espera que el trabajo termine correctamente.
+[Restauracion MySQL del proveedor](https://www.smarterasp.net/support/kb/a2399/how-can-i-restore-mysql-database-to-your-server.aspx).
 
-En **Advanced Tools > Pool Manager > Actions > Environment Variables**, crea:
+El archivo crea tablas InnoDB con `utf8mb4` y registra las seis migraciones
+vigentes, incluida `20261002213909_AddMessageClientRequestId`.
+No crea la base ni usuarios MySQL y no necesita privilegios de administrador
+global. No contiene tus clientes, chats, adjuntos ni contrasenas.
 
-| Nombre | Valor |
+**Ejecutalo una sola vez y solo sobre una base vacia.** No es un script de
+actualizacion. MySQL confirma DDL implicitamente; si una instruccion falla,
+no supongas que START TRANSACTION puede deshacer las tablas ya creadas.
+Si solo hay tablas parciales de esta instalacion nueva, recrea una base vacia
+desde el panel antes de reintentar. Nunca borres una base con datos reales.
+
+Comprueba despues de importar:
+
+```sql
+SELECT MigrationId, ProductVersion
+FROM __EFMigrationsHistory ORDER BY MigrationId;
+
+SHOW TABLES;
+SHOW COLUMNS FROM crm_mensaje LIKE 'c_client_request_id';
+SHOW COLUMNS FROM crm_usuario LIKE 'n_rol';
+```
+
+Debe haber seis registros de migracion, las tablas `crm_rol` y
+`crm_rol_permiso`, y las dos columnas anteriores. El arranque del CRM
+reconocera ese historial y no repetira las migraciones ya importadas.
+
+Alternativa: deja la base completamente vacia y permite que el CRM aplique
+las migraciones al arrancar. Elige una opcion; no importes el SQL despues
+de que el arranque ya haya creado las tablas.
+
+## 3. Configurar IIS y el primer administrador
+
+En **Advanced Tools > Pool Manager > Actions > Environment Variables**,
+configura estas variables en el pool del sitio:
+[Variables de entorno del proveedor](https://www.smarterasp.net/support/kb/a2437/how-to-set-environment-variable-for-your-account.aspx).
+
+| Variable | Valor |
 |---|---|
-| `ConnectionStrings__DefaultConnection` | La cadena MySQL entregada por SmarterASP.NET |
+| `ConnectionStrings__DefaultConnection` | Conexion MySQL proporcionada por el hosting |
 | `Authentication__BootstrapUsername` | Usuario administrador inicial |
-| `Authentication__BootstrapPassword` | Contraseña inicial larga y única |
+| `Authentication__BootstrapPassword` | Clave larga y unica |
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
 
-Las variables pertenecen al Application Pool. Si el plan lo permite, usa un
-pool dedicado para que otros sitios de la misma cuenta no compartan la cadena
-de conexión.
-
-Ejemplo de estructura, solamente como referencia:
+Ejemplo estructural, sin credenciales reales:
 
 ```text
 Server=SERVIDOR;Port=3306;Database=BASE;User ID=USUARIO;Password=CLAVE;SslMode=Preferred;
 ```
 
-Usa los nombres y opciones exactos que muestra el panel de SmarterASP.NET. No
-guardes la cadena real en Git, `appsettings.json`, `web.config` ni este archivo.
+Usa las opciones SSL y datos que indique el proveedor. No publiques la cadena
+real en Git, documentos ni el paquete del sitio. Las variables pertenecen
+al pool; si hay otros sitios dentro del mismo pool, tambien podrian acceder
+a ellas. Un pool dedicado separa esa configuracion.
 
-Después del primer ingreso, cambia la contraseña desde **Usuarios** y elimina
-las dos variables `Authentication__Bootstrap...` del hosting. No son necesarias
-cuando la base ya contiene usuarios.
+El SQL no inserta un administrador. El primer arranque lo crea solamente si
+`crm_usuario` esta vacia y las variables bootstrap estan completas.
+Despues del primer ingreso, cambia la clave desde **Usuarios** y elimina
+las variables bootstrap. No uses `change-me-now` en produccion.
 
-## 3. Publicar
+## 4. Publicar la aplicacion
 
-Desde la carpeta del proyecto:
+Desde `CRM.Data.MySql`:
 
 ```powershell
-dotnet publish CRM.Data.csproj -p:PublishProfile=SmarterASP
+dotnet test .\tests\CRM.Data.Tests\CRM.Data.Tests.csproj -c Release
+dotnet publish .\CRM.Data.csproj -p:PublishProfile=SmarterASP
 ```
 
-El resultado queda en `bin/SmarterASP`. Se puede subir mediante Web Deploy o
-comprimir su contenido y cargarlo en la raíz del sitio. El perfil publica en
-modo framework-dependent para .NET 10 y excluye datos locales, adjuntos y
-credenciales.
+Sube el **contenido** de `bin/SmarterASP` a la raiz del sitio, no la carpeta
+del proyecto completa. El perfil usa .NET 10 framework-dependent; el servidor
+debe tener el runtime y el modulo de ASP.NET Core correspondientes.
 
-No borres en futuras publicaciones estas carpetas del servidor:
+El paquete no debe contener `configuracion-local.env`, appsettings locales,
+`App_Data` de tu equipo, `wwwroot/uploads`, pruebas ni documentacion.
+El SQL se importa por separado en el panel de bases; no va en la raiz web.
 
-- `App_Data/data-protection-keys`: permite descifrar las claves del panel.
-- `App_Data/social-integrations.json`: contiene la configuración cifrada.
-- `App_Data/private-uploads`: contiene adjuntos que todavía no estén en R2.
+No sobrescribas ni borres `App_Data` ya existente en el hosting cuando hagas
+actualizaciones. La identidad del pool necesita escritura en esa carpeta.
+Respalda especialmente las llaves de Data Protection, las conexiones cifradas,
+los ajustes del bot y los adjuntos locales privados.
 
-La identidad del Application Pool necesita permiso de escritura sobre
-`App_Data`. Conviene incluir toda esa carpeta en los respaldos del hosting.
-Las llaves están protegidas por Windows; si el proveedor mueve el sitio a otro
-servidor y ya no pueden descifrarse, vuelve a ingresar las conexiones desde el
-panel para generar un juego nuevo.
+Las llaves de Windows se protegen con DPAPI de maquina. Las conexiones
+cifradas localmente pueden no funcionar en otro servidor: configura las
+integraciones de nuevo en el hosting, no copies tus archivos locales.
 
-## 4. Configurar las conexiones desde el CRM
+## 5. Dominio, HTTPS e integraciones
 
-1. Abre la URL temporal de SmarterASP.NET e inicia sesión como administrador.
-2. Entra a **Conexiones**.
-3. Configura Cloudflare R2, WhatsApp, Instagram, Facebook o TikTok.
-4. Las claves se guardan cifradas en el servidor. El formulario las muestra
-   enmascaradas y únicamente el administrador puede solicitar verlas.
-5. Para Instagram, Facebook o TikTok, guarda primero el App ID/Client Key y su
-   secreto; después usa **Conectar con OAuth**. El CRM valida `state`, canjea el
-   código en el servidor y guarda los tokens cifrados. El token de TikTok se
-   renueva automáticamente antes de vencer.
+Configura el dominio y el certificado desde el panel del hosting con los
+valores que muestre tu cuenta. Activa HTTPS antes de probar el login en
+produccion; las cookies de sesion usan Secure.
 
-Las claves ya no forman parte del paquete publicado. R2 también se administra
-desde **Conexiones > Configurar almacenamiento**.
-
-Registra en cada proveedor la URL exacta correspondiente al dominio definitivo:
+Como administrador, abre **Conexiones** y configura WhatsApp, Facebook,
+Instagram, TikTok y R2 cuando correspondan. Registra las URLs de webhook
+y OAuth generadas para el dominio definitivo. Las rutas OAuth incluyen:
 
 ```text
 https://crm.ejemplo.com/api/integraciones/instagram/oauth/callback
@@ -99,54 +124,24 @@ https://crm.ejemplo.com/api/integraciones/facebook/oauth/callback
 https://crm.ejemplo.com/api/integraciones/tiktok/oauth/callback
 ```
 
-No agregues parámetros ni cambies la barra final respecto de la URL registrada.
-TikTok exige HTTPS para el flujo web.
+No incluyas tokens en los documentos. Los permisos aprobados por cada proveedor
+determinan que datos se pueden consultar. TikTok no ofrece mensajes directos
+en esta integracion.
 
-## 5. Agregar el dominio cuando esté decidido
+## 6. Verificacion y respaldo
 
-1. En SmarterASP.NET abre **Websites** y usa **Add Domain Name** sobre el sitio.
-2. En el proveedor del dominio elige una opción:
-   - cambiar los DNS a `NS1.SITE4NOW.NET`, `NS2.SITE4NOW.NET` y
-     `NS3.SITE4NOW.NET`; o
-   - mantener el DNS actual y crear un registro `A` hacia la IP indicada por
-     SmarterASP.NET.
-3. Activa el certificado SSL para el dominio.
-4. Si todo el frontend y la API usan el mismo dominio, no hace falta configurar
-   CORS. Si otro sitio web consumirá la API, agrega en el Pool Manager:
+1. `/api/health/live` debe indicar Healthy.
+2. `/api/health/ready` debe indicar Healthy y database Available.
+3. Comprueba los seis registros de EF y que el login funcione: el endpoint
+   ready solo comprueba la conexion, no valida todas las tablas.
+4. Crea un contacto y prueba las listas, etiquetas y permisos de ficha.
+5. Prueba Ver todos los chats con un usuario no administrador y sus canales.
+6. Comprueba que Marketing abre y muestra carga o un error recuperable
+   cuando las consultas de redes no responden.
+7. Si configuraste un canal, prueba envio, adjuntos y recepcion del webhook.
+8. Recicla el pool y confirma que las conexiones siguen configuradas.
+9. Mantiene respaldos de MySQL y de App_Data del servidor.
 
-```text
-Cors__AllowedOrigins__0=https://crm.ejemplo.com
-```
-
-5. En **Conexiones**, copia nuevamente las URLs de webhook generadas por el CRM
-   y actualízalas en Meta/TikTok. Siempre deben empezar por `https://`.
-
-## 6. Verificación posterior
-
-Comprueba en este orden:
-
-1. `/api/health/live` devuelve `Healthy`.
-2. `/api/health/ready` devuelve `Healthy` y `database: Available`.
-3. La URL raíz del sitio muestra directamente el login si no hay una sesión
-   activa; con una sesión válida abre el CRM. El login funciona y obliga a usar HTTPS.
-4. En **Conexiones**, las claves aparecen como configuradas.
-5. Envía un mensaje de prueba y prueba la subida/descarga de un archivo.
-6. Recicla el Application Pool y comprueba que las conexiones siguen activas.
-
-Si aparece un error 500 al iniciar, activa temporalmente el log de stdout en
-`web.config`, reproduce el error, descarga el log y vuelve a desactivarlo.
-
-## 7. Rendimiento
-
-La aplicación entrega CSS, JavaScript, JSON y SVG con Brotli/Gzip y conserva
-los archivos estáticos en caché durante siete días. En una prueba local de 40
-solicitudes calientes se obtuvieron estos promedios:
-
-- `login.html`: 2.24 ms;
-- `/api/health/live`: 3.78 ms;
-- `/api/health/ready`, incluyendo MySQL: 6.01 ms.
-
-Estas cifras validan el código, pero no representan la latencia del centro de
-datos. Después de publicar conviene medir desde la ubicación real de los
-usuarios. Los dos logotipos PNG suman aproximadamente 1.24 MB y son el siguiente
-candidato de optimización (WebP/AVIF) si la primera carga móvil resulta lenta.
+Si falla el arranque, consulta los logs del hosting. El stdout de ASP.NET Core
+puede activarse temporalmente en `web.config`; desactivalo despues del
+diagnostico y nunca publiques logs con secretos.

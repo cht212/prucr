@@ -1,8 +1,15 @@
-﻿CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+-- CRM MySQL: instalacion en una base NUEVA y VACIA, MySQL 8.
+-- Generado desde las seis migraciones hasta AddMessageClientRequestId.
+-- No contiene clientes, mensajes, usuarios ni credenciales locales.
+-- Ejecutar UNA sola vez en la base seleccionada; no usar para actualizaciones.
+-- MySQL confirma DDL implicitamente: ante un fallo, no repetir sobre tablas parciales.
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
     `MigrationId` varchar(150) NOT NULL,
     `ProductVersion` varchar(32) NOT NULL,
     PRIMARY KEY (`MigrationId`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 START TRANSACTION;
 CREATE TABLE `crm_cliente` (
@@ -16,14 +23,14 @@ CREATE TABLE `crm_cliente` (
     `d_fecha_registro` datetime(6) NOT NULL,
     `c_estado` varchar(1) NOT NULL,
     PRIMARY KEY (`n_cliente`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_etiqueta` (
     `n_etiqueta` int NOT NULL AUTO_INCREMENT,
     `c_nombre` varchar(255) NOT NULL,
     `c_color` longtext NOT NULL,
     PRIMARY KEY (`n_etiqueta`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_kpi_dashboard` (
     `n_kpi` bigint NOT NULL AUTO_INCREMENT,
@@ -34,7 +41,7 @@ CREATE TABLE `crm_kpi_dashboard` (
     `c_periodo` longtext NOT NULL,
     `d_fecha_creacion` datetime(6) NOT NULL,
     PRIMARY KEY (`n_kpi`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_login_attempt` (
     `c_key` varchar(64) NOT NULL,
@@ -42,7 +49,7 @@ CREATE TABLE `crm_login_attempt` (
     `d_blocked_until_utc` datetime(6) NULL,
     `d_updated_utc` datetime(6) NOT NULL,
     PRIMARY KEY (`c_key`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_usuario` (
     `n_usuario` int NOT NULL AUTO_INCREMENT,
@@ -52,7 +59,7 @@ CREATE TABLE `crm_usuario` (
     `c_password_hash` longtext NULL,
     `c_rol` longtext NOT NULL,
     PRIMARY KEY (`n_usuario`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_cliente_etiqueta` (
     `n_cliente` bigint NOT NULL,
@@ -61,7 +68,7 @@ CREATE TABLE `crm_cliente_etiqueta` (
     PRIMARY KEY (`n_cliente`, `n_etiqueta`),
     CONSTRAINT `FK_crm_cliente_etiqueta_crm_cliente_n_cliente` FOREIGN KEY (`n_cliente`) REFERENCES `crm_cliente` (`n_cliente`) ON DELETE CASCADE,
     CONSTRAINT `FK_crm_cliente_etiqueta_crm_etiqueta_n_etiqueta` FOREIGN KEY (`n_etiqueta`) REFERENCES `crm_etiqueta` (`n_etiqueta`) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_actividad_log` (
     `n_actividad` bigint NOT NULL AUTO_INCREMENT,
@@ -74,7 +81,7 @@ CREATE TABLE `crm_actividad_log` (
     `d_fecha` datetime(6) NOT NULL,
     PRIMARY KEY (`n_actividad`),
     CONSTRAINT `FK_crm_actividad_log_crm_usuario_n_usuario` FOREIGN KEY (`n_usuario`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_campana` (
     `n_campana` bigint NOT NULL AUTO_INCREMENT,
@@ -90,7 +97,7 @@ CREATE TABLE `crm_campana` (
     PRIMARY KEY (`n_campana`),
     CONSTRAINT `FK_crm_campana_crm_usuario_n_asignado_a` FOREIGN KEY (`n_asignado_a`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE RESTRICT,
     CONSTRAINT `FK_crm_campana_crm_usuario_n_creado_por` FOREIGN KEY (`n_creado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE RESTRICT
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_conversacion` (
     `n_conversacion` bigint NOT NULL AUTO_INCREMENT,
@@ -109,7 +116,7 @@ CREATE TABLE `crm_conversacion` (
     PRIMARY KEY (`n_conversacion`),
     CONSTRAINT `FK_crm_conversacion_crm_cliente_n_cliente` FOREIGN KEY (`n_cliente`) REFERENCES `crm_cliente` (`n_cliente`) ON DELETE CASCADE,
     CONSTRAINT `FK_crm_conversacion_crm_usuario_n_usuario_asignado` FOREIGN KEY (`n_usuario_asignado`) REFERENCES `crm_usuario` (`n_usuario`)
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_regla_automatica` (
     `n_regla` bigint NOT NULL AUTO_INCREMENT,
@@ -126,7 +133,7 @@ CREATE TABLE `crm_regla_automatica` (
     PRIMARY KEY (`n_regla`),
     CONSTRAINT `FK_crm_regla_automatica_crm_usuario_n_asignado_a` FOREIGN KEY (`n_asignado_a`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE RESTRICT,
     CONSTRAINT `FK_crm_regla_automatica_crm_usuario_n_creado_por` FOREIGN KEY (`n_creado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE RESTRICT
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_reporte_exportacion` (
     `n_reporte` bigint NOT NULL AUTO_INCREMENT,
@@ -138,7 +145,7 @@ CREATE TABLE `crm_reporte_exportacion` (
     `n_creado_por` int NULL,
     PRIMARY KEY (`n_reporte`),
     CONSTRAINT `FK_crm_reporte_exportacion_crm_usuario_n_creado_por` FOREIGN KEY (`n_creado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_campana_cliente` (
     `n_campana` bigint NOT NULL,
@@ -148,7 +155,7 @@ CREATE TABLE `crm_campana_cliente` (
     PRIMARY KEY (`n_campana`, `n_cliente`),
     CONSTRAINT `FK_crm_campana_cliente_crm_campana_n_campana` FOREIGN KEY (`n_campana`) REFERENCES `crm_campana` (`n_campana`) ON DELETE CASCADE,
     CONSTRAINT `FK_crm_campana_cliente_crm_cliente_n_cliente` FOREIGN KEY (`n_cliente`) REFERENCES `crm_cliente` (`n_cliente`) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_mensaje` (
     `n_mensaje` bigint NOT NULL AUTO_INCREMENT,
@@ -163,7 +170,7 @@ CREATE TABLE `crm_mensaje` (
     `d_fecha` datetime(6) NOT NULL,
     PRIMARY KEY (`n_mensaje`),
     CONSTRAINT `FK_crm_mensaje_crm_conversacion_n_conversacion` FOREIGN KEY (`n_conversacion`) REFERENCES `crm_conversacion` (`n_conversacion`) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_nota_interna` (
     `n_nota` bigint NOT NULL AUTO_INCREMENT,
@@ -176,7 +183,7 @@ CREATE TABLE `crm_nota_interna` (
     CONSTRAINT `FK_crm_nota_interna_crm_cliente_n_cliente` FOREIGN KEY (`n_cliente`) REFERENCES `crm_cliente` (`n_cliente`) ON DELETE RESTRICT,
     CONSTRAINT `FK_crm_nota_interna_crm_conversacion_n_conversacion` FOREIGN KEY (`n_conversacion`) REFERENCES `crm_conversacion` (`n_conversacion`) ON DELETE SET NULL,
     CONSTRAINT `FK_crm_nota_interna_crm_usuario_n_creado_por` FOREIGN KEY (`n_creado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE RESTRICT
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_oportunidad` (
     `n_oportunidad` bigint NOT NULL AUTO_INCREMENT,
@@ -198,7 +205,7 @@ CREATE TABLE `crm_oportunidad` (
     CONSTRAINT `FK_crm_oportunidad_crm_cliente_n_cliente` FOREIGN KEY (`n_cliente`) REFERENCES `crm_cliente` (`n_cliente`) ON DELETE RESTRICT,
     CONSTRAINT `FK_crm_oportunidad_crm_conversacion_n_conversacion` FOREIGN KEY (`n_conversacion`) REFERENCES `crm_conversacion` (`n_conversacion`) ON DELETE SET NULL,
     CONSTRAINT `FK_crm_oportunidad_crm_usuario_n_usuario_asignado` FOREIGN KEY (`n_usuario_asignado`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_tarea` (
     `n_tarea` bigint NOT NULL AUTO_INCREMENT,
@@ -218,7 +225,7 @@ CREATE TABLE `crm_tarea` (
     CONSTRAINT `FK_crm_tarea_crm_conversacion_n_conversacion` FOREIGN KEY (`n_conversacion`) REFERENCES `crm_conversacion` (`n_conversacion`) ON DELETE SET NULL,
     CONSTRAINT `FK_crm_tarea_crm_oportunidad_n_oportunidad` FOREIGN KEY (`n_oportunidad`) REFERENCES `crm_oportunidad` (`n_oportunidad`) ON DELETE SET NULL,
     CONSTRAINT `FK_crm_tarea_crm_usuario_n_asignado_a` FOREIGN KEY (`n_asignado_a`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX `IX_crm_actividad_log_c_entidad_n_entidad_id` ON `crm_actividad_log` (`c_entidad`, `n_entidad_id`);
 
@@ -279,7 +286,7 @@ CREATE TABLE `crm_usuario_permiso` (
     PRIMARY KEY (`n_usuario`, `c_permiso`),
     CONSTRAINT `FK_crm_usuario_permiso_crm_usuario_n_otorgado_por` FOREIGN KEY (`n_otorgado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL,
     CONSTRAINT `FK_crm_usuario_permiso_crm_usuario_n_usuario` FOREIGN KEY (`n_usuario`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX `IX_crm_usuario_permiso_n_otorgado_por` ON `crm_usuario_permiso` (`n_otorgado_por`);
 
@@ -348,14 +355,14 @@ CREATE TABLE `crm_rol` (
     `n_creado_por` int NULL,
     PRIMARY KEY (`n_rol`),
     CONSTRAINT `FK_crm_rol_crm_usuario_n_creado_por` FOREIGN KEY (`n_creado_por`) REFERENCES `crm_usuario` (`n_usuario`) ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `crm_rol_permiso` (
     `n_rol` int NOT NULL,
     `c_permiso` varchar(100) NOT NULL,
     PRIMARY KEY (`n_rol`, `c_permiso`),
     CONSTRAINT `FK_crm_rol_permiso_crm_rol_n_rol` FOREIGN KEY (`n_rol`) REFERENCES `crm_rol` (`n_rol`) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX `IX_crm_usuario_n_rol` ON `crm_usuario` (`n_rol`);
 
@@ -367,6 +374,13 @@ ALTER TABLE `crm_usuario` ADD CONSTRAINT `FK_crm_usuario_crm_rol_n_rol` FOREIGN 
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20261002181944_AddCustomRoles', '10.0.12');
+
+ALTER TABLE `crm_mensaje` ADD `c_client_request_id` varchar(80) NULL;
+
+CREATE UNIQUE INDEX `IX_crm_mensaje_n_conversacion_c_client_request_id` ON `crm_mensaje` (`n_conversacion`, `c_client_request_id`);
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20261002213909_AddMessageClientRequestId', '10.0.12');
 
 COMMIT;
 

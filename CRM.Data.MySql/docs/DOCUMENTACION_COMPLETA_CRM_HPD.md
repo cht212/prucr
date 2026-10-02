@@ -1,190 +1,128 @@
-# Documentación técnica del CRM HPD MySQL
+# Arquitectura y mantenimiento del CRM MySQL
 
-Fecha de actualización: 29 de septiembre de 2026.
+Actualizado: 2 de octubre de 2026.
 
-## 1. Alcance
+## Proyecto activo
 
-Esta guía describe la variante ubicada en `CRM.Data.MySql`. Es una aplicación
-ASP.NET Core .NET 10 que sirve una interfaz HTML/CSS/JavaScript y una API en el
-mismo proceso. Usa Entity Framework Core con MySQL 8. El almacenamiento de
-adjuntos utiliza Cloudflare R2 cuando sus credenciales y bucket están completos
-y, en caso contrario, almacenamiento local protegido.
+`CRM.Data.MySql` es una aplicacion ASP.NET Core .NET 10 con interfaz
+HTML/CSS/JavaScript, API y Entity Framework Core. Usa MySQL 8.
+La solucion de la raiz incluye la aplicacion y sus pruebas; el proyecto
+anterior SQL Server no forma parte de la instalacion activa.
 
-## 2. Abrir únicamente este proyecto
+| Carpeta | Responsabilidad |
+|---|---|
+| `Controllers` | API y autorizacion de operaciones |
+| `Data` y `Models` | Mapeo y entidades de MySQL |
+| `Migrations` | Historial de EF y snapshot del esquema |
+| `Services` | Negocio, canales, permisos y almacenamiento |
+| `Extensions` | Servicios, autenticacion y seguridad HTTP |
+| `Startup` | Migraciones y bootstrap del administrador |
+| `wwwroot` | Interfaz, estilos, fuentes e imagenes |
+| `tests/CRM.Data.Tests` | Pruebas automatizadas |
+| `docs` | Las cuatro guias operativas y el SQL de instalacion |
 
-En Visual Studio Code se abre la carpeta `CRM.Data.MySql`. En Visual Studio se
-abre `CRM.Data.csproj` dentro de esa carpeta. Los comandos de esta documentación
-suponen que la terminal está situada en `CRM.Data.MySql`.
+## Base de datos
 
-Estructura principal:
+`DatabaseInitializer` aplica las migraciones al arrancar. El historial termina
+en `20261002213909_AddMessageClientRequestId`.
+El SQL oficial esta en [smarterasp/crear-base-datos.sql](smarterasp/crear-base-datos.sql);
+no se mantiene una segunda copia en `Migrations`.
 
-- `Controllers`: endpoints HTTP de negocio.
-- `Data`: contexto y mapeo de Entity Framework Core.
-- `DTOs`: contratos de entrada de las integraciones.
-- `Extensions`: autenticación, servicios y seguridad HTTP.
-- `Migrations`: historial y modelo MySQL.
-- `Models`: entidades del CRM.
-- `Services`: lógica de negocio, canales, seguridad y almacenamiento.
-- `Startup`: inicialización de la base y del administrador.
-- `wwwroot`: interfaz web.
-- `docs`: toda la documentación del proyecto.
+Incluye los permisos individuales, roles personalizados, contexto de respuestas,
+indices compuestos para las listas y `crm_mensaje.c_client_request_id`.
+El indice unico por conversacion y clave permite reutilizar un envio de texto
+guardado cuando el cliente lo reintenta. No se exige una clave a los mensajes
+anteriores: la columna admite NULL.
 
-## 3. Inicio local
+El SQL crea un esquema vacio, no migra datos locales. No contiene administradores
+prefijados ni claves. Consulta [MySQL y migraciones](MYSQL-MIGRATION.md).
 
-Requisitos:
+## Autenticacion y permisos
 
-- .NET 10 SDK;
-- Docker Desktop con Docker Compose;
-- PowerShell o terminal de Windows.
+La sesion usa cookie HTTP-only. Fuera de desarrollo se usan cookies Secure,
+HTTPS y HSTS. Hay limites de solicitudes, control de origen en escrituras
+y bloqueo persistente de intentos fallidos.
 
-Preparación:
+`CrmPermissionService` combina rol base, rol personalizado y permisos
+individuales. Los controles del servidor son obligatorios; ocultar botones
+en JavaScript no reemplaza la autorizacion.
 
-```powershell
-notepad .\configuracion-local.env
-.\docker-local.cmd up
-dotnet run --project .\CRM.Data.csproj
-```
+- `comunicaciones.chats.todos`: lectura de chats ajenos y cerrados en los
+  canales permitidos; no otorga acciones de gestion.
+- `comunicaciones.ficha`: ficha completa y lectura de etiquetas.
+- `comunicaciones.ficha.contacto`: datos basicos del contacto, no etiquetas.
+- Los permisos de WhatsApp, Facebook e Instagram son independientes.
+- El administrador conserva acceso completo.
 
-Comprobar el estado:
+Sin ficha completa, Contactos devuelve las etiquetas vacias, no busca por sus
+nombres y rechaza el filtro por etiqueta, incluida la exportacion.
+Los endpoints de lectura de etiquetas tambien requieren ficha completa.
 
-```powershell
-.\docker-local.cmd status
-```
+## Interfaz y consultas
 
-La aplicación lee `configuracion-local.env` desde su directorio de contenido.
-Ese archivo se utiliza para desarrollo local y está ignorado por Git.
+Comunicaciones, Contactos, Tareas, Leads, Ventas, Actividad, Fallos y Usuarios
+usan paginacion. Se pueden elegir 10, 25, 50 o 100 elementos, con navegacion
+a los extremos y preferencia por lista en localStorage.
 
-## 4. MySQL y Entity Framework Core
+El historial de mensajes usa un cursor para recuperar bloques anteriores.
+El cambio rapido de conversacion descarta respuestas de selecciones obsoletas.
 
-`Program.cs` construye `ConnectionStrings:DefaultConnection` a partir de:
+Marketing y Conexiones cargan sus bloques progresivamente. Las peticiones
+externas tienen limites de espera y presentan errores recuperables.
+Dashboard separa el resumen de la consulta de carga del equipo.
 
-- `MYSQL_HOST`;
-- `MYSQL_PORT`;
-- `MYSQL_DATABASE`;
-- `MYSQL_USER`;
-- `MYSQL_PASSWORD`.
+Los estilos estan divididos en `wwwroot/css`: base, comunicaciones, modulos,
+dashboard, marketing, ajustes responsivos y tema de referencia.
+Mantener las nuevas reglas dentro del modulo correspondiente evita conflictos.
+Los archivos estaticos usan cache de siete dias; al cambiarlos se actualiza
+su version en `wwwroot/index.html`. HTML se entrega sin cache persistente.
 
-Docker Compose inicia MySQL 8.0.39 y conserva sus datos en el volumen externo
-`crm_data_mysql`. El volumen no se elimina al detener o recrear el contenedor.
+## Almacenamiento y secretos
 
-`DatabaseInitializer` comprueba la conexión y aplica migraciones pendientes al
-arrancar. Si MySQL no responde, registra el error y permite que el proceso siga
-activo; `/api/health/ready` indicará que el servicio aún no está listo.
+La configuracion local vive en `configuracion-local.env`; IIS usa
+`ConnectionStrings__DefaultConnection` y variables protegidas del pool.
+No publiques el archivo local: su cargador puede reemplazar la conexion de IIS.
 
-Comandos manuales de EF Core:
+Las conexiones sociales configuradas en el CRM se guardan en
+`App_Data/social-integrations.json`. Las llaves de Data Protection persisten
+en `App_Data/data-protection-keys`; en Windows se protegen mediante DPAPI
+con alcance de maquina. El bot y las plantillas tambien usan archivos locales.
 
-```powershell
-dotnet ef migrations list --project .\CRM.Data.csproj
-dotnet ef database update --project .\CRM.Data.csproj
-```
+R2 almacena adjuntos cuando esta configurado. El almacenamiento de respaldo
+usa `App_Data/private-uploads` y rutas autenticadas. El directorio publico
+`/uploads` esta bloqueado.
 
-## 5. Administrador inicial y contraseñas
+La publicacion excluye App_Data local, appsettings locales, documentos,
+pruebas y resultados temporales. En el servidor, respalda MySQL y App_Data,
+y conserva sus archivos al actualizar. Las llaves cifradas en otra maquina
+pueden no ser reutilizables: vuelve a configurar las conexiones en el hosting.
 
-`CRM_BOOTSTRAP_USERNAME` y `CRM_BOOTSTRAP_PASSWORD` definen la primera cuenta
-Administradora. Esta cuenta solo se crea cuando `crm_usuario` está vacía.
-
-Las contraseñas de usuarios se guardan como hashes mediante el sistema de
-contraseñas de ASP.NET Core. Por diseño, no se pueden recuperar ni mostrar. El
-Administrador puede sustituirlas desde **Usuarios**.
-
-Cambiar el valor bootstrap no cambia una cuenta ya creada. Para una base nueva,
-se edita antes de arrancar. Fuera del entorno de desarrollo, el valor literal
-`change-me-now` es rechazado por la aplicación.
-
-La contraseña local del usuario MySQL se rota de forma coordinada con:
-
-```powershell
-.\rotar-clave-mysql.cmd
-```
-
-El script cambia la clave dentro de MySQL, actualiza el archivo local y recrea
-el contenedor sin borrar los datos.
-
-## 6. Autenticación, roles y permisos
-
-La sesión utiliza una cookie HTTP-only. Fuera de desarrollo, la aplicación
-activa HTTPS, HSTS y la marca `Secure`. Hay límites de solicitudes, validación de
-origen para operaciones de escritura y bloqueo persistente de accesos fallidos.
-
-Roles base:
-
-- Administrador;
-- Auditor;
-- Supervisor;
-- Asesor.
-
-Los permisos adicionales se guardan en MySQL. Los controladores y servicios
-validan la autorización en el servidor; la visibilidad del frontend es solo una
-capa complementaria.
-
-## 7. Funcionalidad del CRM
-
-Los módulos cubren clientes, conversaciones, mensajes, contactos, notas,
-etiquetas, tareas, oportunidades, campañas, automatizaciones, plantillas,
-dashboard, actividad, reportes y exportaciones.
-
-WhatsApp admite varios números del mismo WABA. El webhook conserva
-`phone_number_id` en la conversación y las respuestas posteriores utilizan ese
-mismo número.
-
-Facebook e Instagram comparten el webhook Meta. TikTok se utiliza para consultar
-publicaciones y métricas mediante Display API cuando existe un token con el
-permiso necesario; no se presenta como canal de mensajes directos.
-
-## 8. Archivos y Cloudflare R2
-
-`R2StorageService` usa la API compatible con S3 de Cloudflare R2. Requiere:
-
-- `R2:AccountId`;
-- `R2:AccessKeyId`;
-- `R2:SecretAccessKey`;
-- `R2:BucketName`.
-
-En local, esas claves se cargan desde variables con guion bajo en
-`configuracion-local.env`. Los archivos entrantes pueden recurrir a
-`App_Data/private-uploads` si R2 falla; la descarga local exige sesión y acceso
-al mensaje correspondiente.
-
-El bucket puede permanecer privado. El CRM entrega los archivos al usuario por
-una ruta autenticada y sube a Meta el contenido mediante la API de medios de
-WhatsApp. Las credenciales deben limitarse al bucket y a lectura/escritura de
-objetos.
-
-## 9. Configuración operativa
-
-Las conexiones sociales configuradas desde la interfaz se persisten en
-`App_Data/social-integrations.json`. Los ajustes del bot y las respuestas
-rápidas también se guardan bajo `App_Data`. Por tanto, esos archivos forman
-parte de los datos de esta instalación y deben conservarse junto con la base de
-datos.
-
-## 10. Salud y webhooks
+## Integraciones y salud
 
 - `GET /api/health/live`: vida del proceso.
-- `GET /api/health/ready`: disponibilidad de MySQL.
-- `/api/whatsapp/webhook`: WhatsApp Cloud API.
+- `GET /api/health/ready`: prueba de conexion a MySQL; no valida todo el esquema.
+- `/api/whatsapp/webhook`: WhatsApp.
 - `/api/integraciones/meta/webhook`: Facebook e Instagram.
+- TikTok: publicaciones y metricas, no mensajes directos.
 
-Los webhooks configurados en las plataformas externas apuntan a estas rutas y
-validan sus firmas o tokens de verificación.
+Las rutas OAuth y webhooks deben usar el dominio HTTPS definitivo y los
+valores generados por el apartado Conexiones. No incluyas tokens en la guia.
 
-## 11. Seguridad de configuración
-
-- No versionar `configuracion-local.env`.
-- No colocar claves reales en `appsettings.json`.
-- Usar usuarios MySQL sin privilegios administrativos para la aplicación.
-- Rotar credenciales si alguna apareció en Git, capturas o mensajes.
-- Conservar de forma segura las credenciales y las copias de seguridad de
-  MySQL.
-
-## 12. Comprobaciones del proyecto
+## Verificacion y despliegue
 
 ```powershell
 dotnet restore .\CRM.Data.csproj
-dotnet build .\CRM.Data.csproj -c Release
-Get-ChildItem .\wwwroot\js\*.js | ForEach-Object { node --check $_.FullName }
+dotnet test .\tests\CRM.Data.Tests\CRM.Data.Tests.csproj -c Release
+Get-ChildItem .\wwwroot\js -Filter *.js | ForEach-Object { node --check $_.FullName }
+dotnet publish .\CRM.Data.csproj -p:PublishProfile=SmarterASP
 ```
 
-Estas comprobaciones validan la restauración de dependencias, la compilación y
-la sintaxis de los archivos JavaScript actuales.
+Si el proceso Debug esta abierto, las comprobaciones pueden usar
+`--configuration Audit` para no interferir con su ejecutable.
+
+La prueba `DeploymentSqlTests` compara el SQL publicado con las migraciones
+de EF sin conectarse a una base real. Ademas, cualquier cambio de esquema debe
+probarse en una base aislada antes de ejecutarse sobre datos de produccion.
+
+Guia de publicacion: [SmarterASP.NET](SMARTERASP_DESPLIEGUE.md).
 

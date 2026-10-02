@@ -1,90 +1,99 @@
 # Manual de uso del CRM HPD MySQL
 
-Fecha de actualización: 29 de septiembre de 2026.
+Actualizado: 2 de octubre de 2026.
 
-## 1. Acceso
+## Acceso y perfiles
 
-Abre la dirección del CRM e introduce usuario y contraseña. La sesión se cierra
-desde el menú de usuario.
+Inicia sesion con usuario y contrasena. Las funciones disponibles dependen
+del rol base, del rol personalizado y de los permisos individuales.
 
-Los perfiles son:
+- **Administrador:** acceso completo; administra usuarios y conexiones.
+- **Supervisor:** coordina la operacion y el equipo.
+- **Asesor:** atiende los casos autorizados para su cuenta.
+- **Auditor:** consulta la informacion que sus permisos permitan.
+- **Marketing:** trabaja con los modulos y acciones comerciales autorizados.
 
-- **Administrador:** controla el sistema, usuarios, permisos y conexiones.
-- **Auditor:** consulta la operación completa y los controles técnicos; solo
-  modifica aquello que el Administrador le conceda expresamente.
-- **Supervisor:** gestiona la operación y el trabajo del equipo.
-- **Asesor:** trabaja con registros asignados y nuevos casos disponibles.
+Los permisos heredados de roles no administradores pueden concederse o retirarse.
+No se presupone que todos los usuarios de un mismo rol tienen el mismo acceso.
 
-## 2. Dashboard
+## Comunicaciones
 
-Muestra clientes, conversaciones, tareas, oportunidades, ventas y canales. El
-contenido se adapta al rol y se actualiza al entrar o recargar el módulo.
+La bandeja separa Todas, Nuevas, Abiertas, Mis chats y Pendientes.
+El selector **Sin filtro** esta junto a Pendientes.
 
-## 3. Clientes
+**Ver todos los chats** permite consultar conversaciones de otros asesores y
+cerradas dentro de los canales autorizados. No permite por si solo responder,
+reasignar ni controlar el bot de un chat ajeno. Sin ese permiso se muestran
+los chats propios y los disponibles para tomar, segun las reglas de acceso.
 
-Permite buscar, crear y actualizar personas. La ficha reúne nombre, teléfono,
-correo, documento, origen, foto, etiquetas, conversaciones, tareas, notas y
-oportunidades.
+WhatsApp, Facebook e Instagram son canales distintos. Una cuenta sin chats
+WhatsApp puede tener conversaciones en los otros canales. Sus accesos se
+configuran por separado.
 
-## 4. Bandeja de conversaciones
+La conversacion carga los mensajes recientes y permite recuperar el historial
+anterior. Los reintentos del mismo envio de texto reutilizan su clave para
+evitar guardar dos veces el mensaje.
 
-Desde la bandeja se puede leer y responder mensajes, enviar archivos, añadir
-notas, asignar responsable, cambiar estado, controlar el bot y crear tareas u
-oportunidades. Los asesores pueden editar sus contactos, usar todas las etapas
-comerciales, pausar el bot de sus conversaciones y solicitar una transferencia;
-el supervisor puede reasignar directamente desde el chat. WhatsApp muestra el
-número receptor cuando el WABA usa varios números.
+## Contactos y ficha
 
-## 5. Tareas, oportunidades y reportes
+Contactos permite buscar por nombre, telefono, email, canal y asesor.
+Cuando **Ficha completa del cliente** esta habilitada, tambien aparecen
+la columna y el filtro de etiquetas, y la busqueda puede encontrarlas.
 
-Las tareas registran título, fecha límite, prioridad, responsable y relación con
-el cliente. Las oportunidades registran etapa, monto, probabilidad, responsable
-y cierre esperado.
+Sin ese permiso, las etiquetas no se muestran en la tabla ni en el detalle
+movil y no pueden consultarse mediante el filtro. El permiso **Ficha de datos
+del contacto** no concede acceso a las etiquetas ni a la ficha completa.
 
-Reportes permite filtrar por fechas y asesor, revisar la carga operativa,
-exportar CSV y consultar publicaciones e interacciones de Facebook, Instagram y
-TikTok según los permisos de cada API.
+Crear y editar contactos son acciones con permisos independientes.
+La ficha completa reune notas, tareas, oportunidades y actividad autorizadas.
 
-## 6. Conexiones
+## Listas y paginacion
 
-Conexiones muestra el estado de WhatsApp, Facebook, Instagram, TikTok y
-Cloudflare R2. Cada red presenta solo su configuración y su acción operativa
-principal. TikTok se limita a publicaciones y métricas; no se presenta como
-canal de mensajes directos. Los secretos aparecen enmascarados y solo el
-Administrador puede revelarlos o administrarlos.
+En las listas paginadas, **Elementos por pagina** permite elegir 10, 25, 50 o 100.
+Las flechas llevan a la primera, anterior, siguiente y ultima pagina.
+El tamano elegido se conserva por lista en ese navegador.
 
-WhatsApp puede usar un número o una lista JSON de números del mismo WABA:
+Cambiar un filtro o el tamano de pagina reinicia la lista en la primera pagina.
+El rango del pie indica cuantos registros se muestran sobre el total.
 
-```json
-[{"phoneNumberId":"123456789012345","displayNumber":"+51 999 999 999"}]
-```
+## Dashboard, tareas y ventas
 
-## 7. Usuarios y contraseñas
+Dashboard muestra indicadores y carga operativa segun el acceso del usuario.
+Tareas permite organizar seguimientos y vencimientos. Ventas registra etapas,
+montos, responsables y cierres de oportunidades. Las acciones de gestion y
+exportacion requieren sus propios permisos.
 
-El Administrador abre **Usuarios** para crear una cuenta, elegir o cambiar su
-rol entre Asesor, Supervisor y Auditor, cambiar su contraseña y administrar
-permisos adicionales. Las contraseñas no se pueden leer
-después de guardarlas porque MySQL conserva únicamente hashes seguros.
+## Marketing
 
-El botón **Permisos** de cada usuario permite marcar accesos adicionales. Los
-incluidos por el rol aparecen seleccionados y no se pueden retirar desde ese
-panel. Los cambios de visibilidad se reflejan cuando el usuario vuelve a iniciar
-sesión.
+El apartado abre antes de que terminen las consultas de redes. Sus bloques
+muestran estados de carga y errores recuperables cuando el proveedor demora
+o falla. Los filtros de canal y fechas determinan las metricas solicitadas.
 
-La cuenta administradora inicial se configura localmente en
-`configuracion-local.env`. Esos valores solo sirven para crear la primera
-cuenta cuando la base aún no tiene usuarios. Para cambiar una cuenta existente,
-se usa el módulo **Usuarios**.
+TikTok se utiliza para publicaciones y metricas disponibles; no se ofrece
+integracion de mensajes directos con TikTok.
 
-## 8. Archivos
+## Usuarios y permisos
 
-Los archivos aceptados incluyen PDF, Word, Excel, JPG, JPEG, PNG y WEBP, hasta
-15 MB en el flujo de adjuntos de WhatsApp. Los documentos, imágenes, audios,
-videos y stickers recibidos se muestran mediante una ruta autenticada del CRM;
-el bucket R2 no necesita ser público.
+En **Usuarios**, el administrador crea cuentas, asigna roles base o
+personalizados y configura accesos. En **Permisos > Comunicaciones** se
+controlan Ver todos los chats, la ficha completa, los datos del contacto,
+los canales y las acciones de atencion.
 
-## 9. Cierre de sesión
+Los cambios se aplican al refrescar los permisos de la sesion y se validan
+tambien en el servidor. La cuenta administradora mantiene acceso completo.
 
-Usa el menú de usuario y selecciona **Cerrar sesión**. La aplicación elimina la
-cookie de autenticación del navegador.
+Las contrasenas se almacenan como hashes y no se pueden recuperar. El
+administrador puede establecer una nueva; ninguna guia contiene claves reales.
+
+## Conexiones y archivos
+
+El administrador configura R2 y las redes desde **Conexiones**.
+Los secretos se guardan protegidos en el servidor y se muestran enmascarados.
+Las cuentas vinculadas deben tener los permisos aprobados por cada proveedor.
+
+Los adjuntos de WhatsApp admiten los tipos y limites validados por el CRM,
+incluido el limite de 15 MB en la subida actual. Los adjuntos locales se
+descargan mediante rutas autenticadas; no necesitan un directorio publico.
+
+Para cerrar la sesion, usa el menu del usuario y **Cerrar sesion**.
 

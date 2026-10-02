@@ -60,6 +60,45 @@ public sealed class MetaGraphApiServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task FacebookFeed_KeepsPostWhenInsightsRequestTimesOut()
+    {
+        var service = CreateService(request =>
+        {
+            var uri = Assert.IsType<Uri>(request.RequestUri);
+            if (uri.AbsolutePath.EndsWith("/me", StringComparison.Ordinal))
+                return Json(HttpStatusCode.OK, """{"id":"page-1","name":"Página"}""");
+
+            if (uri.AbsolutePath.EndsWith("/published_posts", StringComparison.Ordinal))
+            {
+                return Json(HttpStatusCode.OK, """
+                    {"data":[{
+                      "id":"page-1_post-1","message":"Publicación","created_time":"2026-10-01T12:00:00+0000",
+                      "reactions":{"data":[],"summary":{"total_count":2}},
+                      "comments":{"data":[],"summary":{"total_count":1}}
+                    }]}
+                    """);
+            }
+
+            Assert.EndsWith("/page-1_post-1/insights", uri.AbsolutePath, StringComparison.Ordinal);
+            throw new OperationCanceledException("The request timed out.");
+        }, new Dictionary<string, string?>
+        {
+            ["Meta:Facebook:PageId"] = "page-1",
+            ["Meta:Facebook:AccessToken"] = "page-token"
+        });
+
+        var result = await service.ObtenerFacebookFeedAsync(
+            new DateTime(2026, 9, 1),
+            new DateTime(2026, 10, 2),
+            25);
+
+        var post = Assert.Single(result.Posts);
+        Assert.Equal("page-1_post-1", post.Id);
+        Assert.Equal(2, post.Likes);
+        Assert.Equal(1, post.Comments);
+    }
+
+    [Fact]
     public async Task InstagramComments_FallsBackToFacebookLoginConnection()
     {
         var hosts = new List<string>();
